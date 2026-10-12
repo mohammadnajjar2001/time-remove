@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>عداد الوقت المنقضي الاحترافي</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f172a, #1e1b4b, #311042);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            color: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 40px 30px;
+            border-radius: 24px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            text-align: center;
+            width: 100%;
+            max-width: 650px;
+            transition: transform 0.3s ease;
+        }
+
+        .container:hover {
+            transform: translateY(-5px);
+        }
+
+        .badge {
+            display: inline-block;
+            background: linear-gradient(90deg, #38bdf8, #818cf8);
+            color: #0f172a;
+            font-size: 0.85rem;
+            font-weight: bold;
+            padding: 6px 16px;
+            border-radius: 50px;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 15px rgba(56, 189, 248, 0.3);
+        }
+
+        h2 {
+            font-size: clamp(1.1rem, 3vw, 1.5rem);
+            margin-bottom: 30px;
+            color: #e2e8f0;
+            line-height: 1.6;
+        }
+
+        .timer-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+        }
+
+        .time-box {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 20px 10px;
+            border-radius: 16px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .time-box::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, #00ffcc, transparent);
+            opacity: 0.7;
+        }
+
+        .time-box:hover {
+            border-color: rgba(0, 255, 204, 0.4);
+            box-shadow: 0 8px 25px rgba(0, 255, 204, 0.15);
+        }
+
+        .time-value {
+            font-size: clamp(1.8rem, 5vw, 2.8rem);
+            font-weight: 800;
+            color: #00ffcc;
+            font-variant-numeric: tabular-nums;
+            text-shadow: 0 0 15px rgba(0, 255, 204, 0.4);
+        }
+
+        .time-label {
+            font-size: clamp(0.75rem, 2vw, 0.95rem);
+            margin-top: 8px;
+            color: #94a3b8;
+            font-weight: 500;
+        }
+
+        /* التجاوب مع الشاشات الصغيرة جداً */
+        @media (max-width: 480px) {
+            .container {
+                padding: 25px 15px;
+            }
+            .timer-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="badge">⏳ عداد الوقت الحي</div>
+        <h2>الوقت المنقضي منذ 11 أكتوبر 2026، الساعة 10:00 مساءً</h2>
+        
+        <div class="timer-grid">
+            <div class="time-box">
+                <div class="time-value" id="days">00</div>
+                <div class="time-label">أيام</div>
+            </div>
+            <div class="time-box">
+                <div class="time-value" id="hours">00</div>
+                <div class="time-label">ساعات</div>
+            </div>
+            <div class="time-box">
+                <div class="time-value" id="minutes">00</div>
+                <div class="time-label">دقائق</div>
+            </div>
+            <div class="time-box">
+                <div class="time-value" id="seconds">00</div>
+                <div class="time-label">ثوانٍ</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // تحديد وقت البداية: 11 أكتوبر 2026 الساعة 22:00 (10 مساءً)
+        // ملاحظة: الشهور في جافاسكريبت تبدأ من 0 (شهر 9 يعني أكتوبر)
+        const startTime = new Date(2026, 9, 11, 22, 0, 0).getTime();
+
+        function updateTimer() {
+            const now = new Date().getTime();
+            const difference = now - startTime;
+
+            if (difference < 0) {
+                document.querySelector('.container').innerHTML = "<div class='badge'> تنبيه </div><h2 style='margin:20px 0;'>الوقت المستهدف لم يحن بعد!</h2>";
+                return;
+            }
+
+            // حساب الأيام، الساعات، الدقائق، والثواني
+            const days = Math.floor(difference / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((difference % (1000 * 60)) / 1000);
+
+            // عرض النتائج مع إضافة أصفار بادئة
+            document.getElementById('days').innerText = String(days).padStart(2, '0');
+            document.getElementById('hours').innerText = String(hours).padStart(2, '0');
+            document.getElementById('minutes').innerText = String(minutes).padStart(2, '0');
+            document.getElementById('seconds').innerText = String(seconds).padStart(2, '0');
+        }
+
+        // تحديث العداد فوراً عند التحميل ثم كل ثانية
+        updateTimer();
+        setInterval(updateTimer, 1000);
+    </script>
+</body>
+</html>
